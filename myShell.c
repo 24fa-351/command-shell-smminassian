@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include "path_func.h"
 
@@ -14,7 +15,6 @@ int main(int argc, char *argv[])
     char *words[100];
     while (1)
     {
-
         printf("myshell>\n");
         memset(line, 0, sizeof(line));
         if (fgets(line, MAX_LINE, stdin) == NULL)
@@ -37,30 +37,40 @@ int main(int argc, char *argv[])
         if (words[0] == NULL)
         {
             printf("No command specified\n");
-
-            return 1;
         }
-        if (strcmp(line, "cd"))
+        if (!strcmp(words[0], "cd"))
         {
             if (!find_absolute_path(words[1], absolute_path))
             {
                 printf("path not found: %s\n", words[1]);
-                return 1;
             }
-            else if(find_absolute_path(words[1], absolute_path))
+            else if (find_absolute_path(words[1], absolute_path))
             {
                 printf("original directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
-                chdir(absolute_path);
+                chdir(words[1]);
                 printf("new directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
             }
-           printf("absolute path = '%s'\n", absolute_path);
-            execve(absolute_path, words, NULL);
         }
-        if(strcmp(line, "pwd")){
+        if (!strcmp(words[0], "pwd"))
+        {
             printf("your directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
         }
-       
-        return 1;
+        if (!strcmp(words[0], "ls"))
+        {
+            struct dirent *de;
+
+            DIR *dr = opendir(".");
+
+            if (dr == NULL)
+            {
+                printf("Could not oepn current directory");
+            }
+            while ((de = readdir(dr)) != NULL)
+            {
+                printf("%s\n", de->d_name);
+            }
+            closedir(dr);
+        }
     }
 
     return 0;
@@ -70,7 +80,7 @@ int main(int argc, char *argv[])
 
 // (done)Reads from input, writes to output. until "quit" or "exit".
 
-// Implement "cd" and "pwd". (directly). cd must take a full or relative path.
+// (done)Implement "cd" and "pwd". (directly). cd must take a full or relative path.
 
 // Implement the setting, deleting (unsetting) and getting of xsh environment vars:
 
