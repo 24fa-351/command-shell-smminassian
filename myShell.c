@@ -40,18 +40,26 @@ int main(int argc, char *argv[])
 
             return 1;
         }
-        if (!find_absolute_path(words[0], absolute_path))
+        if (strcmp(line, "cd"))
         {
-            printf("Command not found: %s\n", words[0]);
-
-            return 1;
+            if (!find_absolute_path(words[1], absolute_path))
+            {
+                printf("path not found: %s\n", words[1]);
+                return 1;
+            }
+            else if(find_absolute_path(words[1], absolute_path))
+            {
+                printf("original directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
+                chdir(absolute_path);
+                printf("new directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
+            }
+           printf("absolute path = '%s'\n", absolute_path);
+            execve(absolute_path, words, NULL);
         }
-
-        printf("absolute path = '%s'\n", absolute_path);
-        execve(absolute_path, words, NULL);
-
-        printf("execve failed");
-
+        if(strcmp(line, "pwd")){
+            printf("your directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
+        }
+       
         return 1;
     }
 

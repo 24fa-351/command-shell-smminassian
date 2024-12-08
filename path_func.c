@@ -56,4 +56,6 @@ void add_character_to_string(char path[], char characterIADD)
 {
     size_t len_of_path = strlen(path);
     path[len_of_path] = characterIADD;
+    path[len_of_path + 1] = '\0';
 }
+
