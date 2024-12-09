@@ -48,6 +48,10 @@ bool find_absolute_path(char *cmd, char *absolute_path)
             strcpy(absolute_path, path);
             return true;
         }
+        if(access(path, F_OK) != 0){
+            strcpy(absolute_path, path);
+            return true;
+        }
     }
     return false;
 }

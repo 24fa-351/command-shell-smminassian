@@ -55,6 +55,16 @@ int main(int argc, char *argv[])
         {
             printf("your directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
         }
+        if (!strcmp(words[0], "./"))
+        {
+            
+            if (find_absolute_path(words[0], absolute_path))
+            {
+                printf("Executing %s\n", absolute_path);
+                execve(absolute_path, words, NULL);
+                perror("Execution failed");
+            }
+        }
         if (!strcmp(words[0], "ls"))
         {
             struct dirent *de;
@@ -63,7 +73,7 @@ int main(int argc, char *argv[])
 
             if (dr == NULL)
             {
-                printf("Could not oepn current directory");
+                printf("Could not open current directory");
             }
             while ((de = readdir(dr)) != NULL)
             {
