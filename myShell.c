@@ -46,43 +46,36 @@ int main(int argc, char *argv[])
             }
             else if (find_absolute_path(words[1], absolute_path))
             {
-                printf("original directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
                 chdir(words[1]);
                 printf("new directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
             }
         }
         if (!strcmp(words[0], "pwd"))
         {
-            printf("your directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
+            printf("%s\n", getcwd(absolute_path, sizeof(absolute_path)));
         }
-        if (!strcmp(words[0], "./"))
-        {
-            
-            if (find_absolute_path(words[0], absolute_path))
-            {
-                printf("Executing %s\n", absolute_path);
-                execve(absolute_path, words, NULL);
-                perror("Execution failed");
-            }
-        }
-        if (!strcmp(words[0], "ls"))
-        {
-            struct dirent *de;
-
-            DIR *dr = opendir(".");
-
-            if (dr == NULL)
-            {
-                printf("Could not open current directory");
-            }
-            while ((de = readdir(dr)) != NULL)
-            {
-                printf("%s\n", de->d_name);
-            }
-            closedir(dr);
-        }
+        if() //make this a switch case, If pwd, do this and so on
+            printf("Executing %s\n", absolute_path);
+            execve(absolute_path, words, NULL);
+            perror("Execution failed");
+    
     }
+    if (!strcmp(words[0], "ls"))
+    {
+        struct dirent *de;
 
+        DIR *dr = opendir(".");
+
+        if (dr == NULL)
+        {
+            printf("Could not open current directory");
+        }
+        while ((de = readdir(dr)) != NULL)
+        {
+            printf("%s\n", de->d_name);
+        }
+        closedir(dr);
+    }
     return 0;
 }
 
