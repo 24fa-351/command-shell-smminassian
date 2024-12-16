@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "path_func.h"
 
@@ -44,37 +46,63 @@ int main(int argc, char *argv[])
             {
                 printf("path not found: %s\n", words[1]);
             }
-            else if (find_absolute_path(words[1], absolute_path))
-            {
-                chdir(words[1]);
-                printf("new directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
-            }
+
+            chdir(words[1]);
+            printf("new directory is %s\n", getcwd(absolute_path, sizeof(absolute_path)));
         }
-        if (!strcmp(words[0], "pwd"))
+        else if (!strcmp(words[0], "pwd"))
         {
             printf("%s\n", getcwd(absolute_path, sizeof(absolute_path)));
         }
-        if() //make this a switch case, If pwd, do this and so on
-            printf("Executing %s\n", absolute_path);
-            execve(absolute_path, words, NULL);
-            perror("Execution failed");
-    
-    }
-    if (!strcmp(words[0], "ls"))
-    {
-        struct dirent *de;
-
-        DIR *dr = opendir(".");
-
-        if (dr == NULL)
+        else if (!strcmp(words[0], "ls"))
         {
-            printf("Could not open current directory");
+            struct dirent *de;
+
+            DIR *dr = opendir(".");
+
+            if (dr == NULL)
+            {
+                printf("Could not open current directory");
+            }
+            while ((de = readdir(dr)) != NULL)
+            {
+                printf("%s\n", de->d_name);
+            }
+            closedir(dr);
         }
-        while ((de = readdir(dr)) != NULL)
+        else
         {
-            printf("%s\n", de->d_name);
+
+            snprintf(absolute_path, sizeof(absolute_path), "%s", words[0]);
+
+            if(access(absolute_path, F_OK) == -1){
+                perror("Command not found");
+                continue;
+            }
+
+            if(access(absolute_path, X_OK) == -1){
+                perror("File is not executable");
+                continue;
+            }
+
+            pid_t child = fork();
+
+            if (child == -1)
+            {
+                perror("Fork failed");
+            }
+            else if (child == 0)
+            {
+                printf("Executing %s\n", absolute_path);
+                execve(absolute_path, words, NULL);
+                perror("Execution failed");
+            }
+            else
+            {
+                wait(NULL);
+                printf("Done executing\n");
+            }
         }
-        closedir(dr);
     }
     return 0;
 }
